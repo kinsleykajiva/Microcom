@@ -13,6 +13,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class AddUser extends AppCompatActivity {
     private PendingIntent pendingIntent;
     private IntentFilter writeTagFilters[];
     private boolean writeMode;
+    private NifftyDialogs nifftyDialogs;
     private ProgressDialog progressDialog;
     private EditText Name, Balance, number;
 
@@ -109,17 +111,20 @@ public class AddUser extends AppCompatActivity {
             Log.e ( "xxx", "onPostExecute: " + s );
             if ( s.equals ( "exists" ) ) {
                 status.setText ( "User Already Exists" );
+                nifftyDialogs.messageOkError ("Server Response",  "User Already Exists"  );
                 status.setTextColor ( Color.parseColor ( "#5fba7d" ) ); // green
                 Toast.makeText ( AddUser.this, "User Already Exists", Toast.LENGTH_LONG ).show ();
 
             }
             if ( s.equals ( "done" ) ) {
                 status.setText ( "User Saved. Go Back" );
+                nifftyDialogs.messageOk ( "User Saved. Go Back"  );
                 status.setTextColor ( Color.parseColor ( "#5184c1" ) ); // blue
                 Toast.makeText ( AddUser.this, "User Saved. Go Back", Toast.LENGTH_LONG ).show ();
 
             }
             if ( s.equals ( "failed" ) ) {
+                nifftyDialogs.messageOkError ( "Response","Saving failed. Try again"  );
                 status.setText ( "Saving failed. Try again" );
                 status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // red
                 Toast.makeText ( AddUser.this, "Saving failed. Try again", Toast.LENGTH_LONG ).show ();
@@ -133,17 +138,16 @@ public class AddUser extends AppCompatActivity {
     }
 
     private void initObjects () {
+        nifftyDialogs = new NifftyDialogs ( context );
         progressDialog = new ProgressDialog ( this );
         nfcAdapter = NfcAdapter.getDefaultAdapter ( this );
-        Intent intent = new Intent ( this, getClass () );
-        myTag = intent.getParcelableExtra ( NfcAdapter.EXTRA_TAG );
         if ( nfcAdapter == null ) {
             // Stop here, we definitely need NFC
             Toast.makeText ( this, "This device doesn't support NFC.", Toast.LENGTH_LONG ).show ();
             finish ();
             return;
         }
-
+        readFromIntent(getIntent());
 
         pendingIntent = PendingIntent.getActivity ( this, 0, new Intent ( this, getClass () ).addFlags ( Intent.FLAG_ACTIVITY_SINGLE_TOP ), 0 );
         IntentFilter tagDetected = new IntentFilter ( NfcAdapter.ACTION_TAG_DISCOVERED );
@@ -157,13 +161,39 @@ public class AddUser extends AppCompatActivity {
         super.onResume ();
         WriteModeOn ();
     }
-
+    /**
+     * Read From NFC Tag
+     * @param intent receive intent to read the nfc tag
+     * */
+    private void readFromIntent(Intent intent) {
+        String action = intent.getAction();
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage[] msgs = null;
+            if (rawMsgs != null) {
+                msgs = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    msgs[i] = (NdefMessage) rawMsgs[i];
+                }
+            }
+            //buildTagViews(msgs);
+        }
+    }
     @Override
     public void onPause () {
         super.onPause ();
         WriteModeOff ();
     }
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        readFromIntent(intent);
+        if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())){
+            myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        }
+    }
     private void showProgressDialog (final boolean isToShow) {
 
         if ( isToShow ) {

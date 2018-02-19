@@ -17,6 +17,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+
 }
 
 dependencies {
@@ -24,4 +33,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'    
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile 'com.github.sd6352051:NiftyDialogEffects:1.0.0'
 }

@@ -32,13 +32,15 @@ public class MainActivity extends AppCompatActivity {
     public static final String ERROR_DETECTED = "No NFC tag detected!";
     public static final String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
     public static final String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
-
+    private NifftyDialogs nifftyDialogs;
    private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private IntentFilter writeTagFilters[];
     private boolean writeMode;
     private TextView tvNFCContent ,status ;
     private Tag myTag;
+    private     MakeCheks makeCheks ;
+    private String  balance="";
     private Button btnWrite , brnadd;
     private EditText message;
     private Context context = MainActivity.this;
@@ -48,36 +50,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView ( R.layout.activity_main );
         initObjects();
         initViews();
-        brnadd.setOnClickListener ( new View.OnClickListener () {
-            @Override
-            public void onClick (View v) {
-                startActivity ( new Intent ( MainActivity.this, AddUser.class ) );
+        brnadd.setOnClickListener ( v -> startActivity ( new Intent ( MainActivity.this, AddUser.class ) ) );
+        btnWrite.setOnClickListener( v -> {
+            try {
+                if(myTag ==null) {
+                    Toast.makeText(context, ERROR_DETECTED, Toast.LENGTH_LONG).show();
+                } else {
+                    write(
+                            message.getText ().toString ().trim (),
+                            /*"person|12345|23.00",*/
+                            myTag
+                    );
+                    Toast.makeText(context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show();
+                }
+            } catch (IOException e) {
+                Toast.makeText(context, WRITE_ERROR, Toast.LENGTH_LONG ).show();
+                e.printStackTrace();
+            } catch (FormatException e) {
+                Toast.makeText(context, WRITE_ERROR, Toast.LENGTH_LONG ).show();
+                e.printStackTrace();
             }
         } );
-        btnWrite.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(myTag ==null) {
-                        Toast.makeText(context, ERROR_DETECTED, Toast.LENGTH_LONG).show();
-                    } else {
-                        write(
-                                message.getText ().toString ().trim (),
-                                /*"person|12345|23.00",*/
-                                myTag
-                        );
-                        Toast.makeText(context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show();
-                    }
-                } catch (IOException e) {
-                    Toast.makeText(context, WRITE_ERROR, Toast.LENGTH_LONG ).show();
-                    e.printStackTrace();
-                } catch (FormatException e) {
-                    Toast.makeText(context, WRITE_ERROR, Toast.LENGTH_LONG ).show();
-                    e.printStackTrace();
-                }
-            }
-        });
     }
     private void showProgressDialog (final boolean isToShow) {
 
@@ -94,9 +87,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
     }
+
     private void initObjects () {
         progressDialog = new ProgressDialog (this );
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        nifftyDialogs = new NifftyDialogs ( context );
         if (nfcAdapter == null) {
             // Stop here, we definitely need NFC
             Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
@@ -104,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         readFromIntent(getIntent());
+        makeCheks = new MakeCheks ();
 
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
@@ -153,13 +149,16 @@ public class MainActivity extends AppCompatActivity {
             Log.e ( "xxx", "onPostExecute: "+s  );
             if ( !s.equals ( "none" ) ) {
                 if(balance.equals ( s )){
+                    nifftyDialogs.messageOk ( s    + "Same Balance");
                Toast.makeText (MainActivity.this,"Same Balance",Toast.LENGTH_LONG).show();
                 }else{
+                    nifftyDialogs.justMessage ( "not the same Same Balance");
                     Toast.makeText (MainActivity.this,"not the same Same Balance",Toast.LENGTH_LONG).show();
                 }
 
 
             }else{
+                nifftyDialogs.messageOkError ( "Response","User not Found");
                 Toast.makeText (MainActivity.this,"User not Found",Toast.LENGTH_LONG).show();
             }
 
@@ -186,15 +185,17 @@ public class MainActivity extends AppCompatActivity {
         String[] value_split = text.split("\\|");
 
         tvNFCContent.setText("NFC Content: " + text);
-        if(value_split.length ==3) {
-            String accountName = value_split[ 0 ];
-            String cardNumber = value_split[ 1 ];
-            balance = value_split[ 2 ];
-            showProgressDialog ( true );
-            new MakeCheks ().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
+        if(makeCheks.getStatus () != AsyncTask.Status.RUNNING) {
+            if ( value_split.length == 3 ) {
+                String accountName = value_split[ 0 ];
+                String cardNumber = value_split[ 1 ];
+                balance = value_split[ 2 ];
+                showProgressDialog ( true );
+                makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
+            }
         }
     }
-    String  balance="";
+
     /**
      * Write to NFC Tag
      * @param text the text to write
