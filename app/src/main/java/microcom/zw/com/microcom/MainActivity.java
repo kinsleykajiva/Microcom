@@ -184,13 +184,15 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.e ( "xxx", "buildTagViews: " + text  );
         String[] value_split = text.split("\\|");
-        tvNFCContent.setText("NFC Content: " + text);
-        String  accountName= value_split[0];
-        String  cardNumber= value_split[1];
-        balance = value_split[2];
-        showProgressDialog ( true );
-        new MakeCheks().execute ( "accountName=" + accountName +"&cardNumber="+cardNumber + "&balance="+balance );
 
+        tvNFCContent.setText("NFC Content: " + text);
+        if(value_split.length ==3) {
+            String accountName = value_split[ 0 ];
+            String cardNumber = value_split[ 1 ];
+            balance = value_split[ 2 ];
+            showProgressDialog ( true );
+            new MakeCheks ().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
+        }
     }
     String  balance="";
     /**
