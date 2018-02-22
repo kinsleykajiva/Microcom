@@ -17,6 +17,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +27,10 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
+import static microcom.zw.com.microcom.Utils.androidId;
 import static microcom.zw.com.microcom.Utils.checkDetails;
+import static microcom.zw.com.microcom.Utils.pay;
 
 public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -38,9 +42,11 @@ public class MainActivity extends AppCompatActivity {
     private PendingIntent pendingIntent;
     private IntentFilter writeTagFilters[];
     private boolean writeMode;
-    private TextView tvNFCContent ,status ;
+    private  String accountName,cardNumber;
+    private TextView tvNFCContent ,status ,tagStatus;
     private Tag myTag;
     private static boolean isTaskRunning =false;
+    private  boolean canWrite = false;
     private     MakeCheks makeCheks ;
     private String  balance="";
     private Button  brnadd;
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
      ///   startActivity( new Intent(this, Home.class) );
         initObjects();
         initViews();
+
         brnadd.setOnClickListener ( v -> startActivity ( new Intent ( MainActivity.this, AddUser.class ) ) );
 
     }
@@ -94,9 +101,10 @@ public class MainActivity extends AppCompatActivity {
     private void initViews () {
         status = findViewById ( R.id.status );
         tvNFCContent = findViewById(R.id.nfc_contents);
-
+        tagStatus = findViewById ( R.id.tagStatus );
         brnadd = findViewById ( R.id.brnadd );
         getSupportActionBar ().setTitle ( "Swipa Kombi" );
+        getSupportActionBar ().setDisplayHomeAsUpEnabled ( true );
     }
     /**
      * Read From NFC Tag
@@ -122,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground (String... strings) {
-            return checkDetails(strings[0]);
+            return pay (strings[0]);
         }
 
         @Override
@@ -138,7 +146,44 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
                 return;
             }
-            if ( !s.equals ( "none" ) ) {
+            if(s.equals ( "none" )){
+                nifftyDialogs.messageOkError ("Error !" ,"User doesn't Exist,Register!");
+            }
+            if(s.equals ( "err_update" )){
+                nifftyDialogs.messageOkError ("Error !" ,"Transaction Failed !");
+            }
+            if(s.contains ( "broke" )){
+                String[] value_split = s.split("\\|");
+                nifftyDialogs.messageOkError ("Insufficient Funds !" ," Balance $" + value_split[1]);
+            }
+            if(s.contains ( "done" )){
+                String[] value_split = s.split("\\|");
+                nifftyDialogs.messageOk ("Finished !" ,"New Balance: $" +value_split[1]);
+
+            try {
+                if ( myTag == null ) {
+                    canWrite = false ;
+                    Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
+                } else {
+                    write (
+                            accountName + "|" + cardNumber + "|" + value_split[1],
+
+                            myTag
+                    );
+                    canWrite = true ;
+                    tagStatus.setText ( "Saved To Card" );
+                    tvNFCContent.setText("Card Name:" + accountName + "\n Number:" +cardNumber + "\n Newer Balance :"+value_split[1]);
+                    Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                }
+            } catch (IOException | FormatException e) {
+                Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                e.printStackTrace ();
+            }
+            }
+
+            /*if ( !s.equals ( "none" ) ) {
+
+                if(s.equals ( "" ))
                 if(balance.equals ( s )){
                     nifftyDialogs.messageOk ( s    + "Same Balance");
                Toast.makeText (MainActivity.this,"Same Balance",Toast.LENGTH_LONG).show();
@@ -147,11 +192,10 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText (MainActivity.this,"not the same Same Balance",Toast.LENGTH_LONG).show();
                 }
 
-
             }else{
                 nifftyDialogs.messageOkError ( "Response","User not Found");
                 Toast.makeText (MainActivity.this,"User not Found",Toast.LENGTH_LONG).show();
-            }
+            }*/
 
         }
     }
@@ -175,16 +219,22 @@ public class MainActivity extends AppCompatActivity {
         Log.e ( "xxx", "buildTagViews: " + text  );
         String[] value_split = text.split("\\|");
 
-        tvNFCContent.setText("NFC Content: " + text);
+
         if(/*makeCheks.getStatus () != AsyncTask.Status.RUNNING*/ !isTaskRunning) {
             if ( value_split.length == 3 ) {
-                String accountName = value_split[ 0 ];
-                String cardNumber = value_split[ 1 ];
+                 accountName = value_split[ 0 ];
+                 cardNumber = value_split[ 1 ];
                 balance = value_split[ 2 ];
+                tvNFCContent.setText("Card Name:" + accountName + "\n Number:" +cardNumber + "\n Balance :"+balance);
                 showProgressDialog ( true );
                 makeCheks = new MakeCheks ();
                 isTaskRunning = true;
-                makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
+                if(isNetworkAvailable( context)){
+
+                    makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance + "&deviceid="+androidId(context) );
+                }else{
+                    nifftyDialogs.messageOkError ( "Connection Error" , "No Internet Connection" );
+                }
             }
         }
     }
@@ -254,5 +304,14 @@ public class MainActivity extends AppCompatActivity {
     private void WriteModeOff(){
         writeMode = false;
         nfcAdapter.disableForegroundDispatch(this);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

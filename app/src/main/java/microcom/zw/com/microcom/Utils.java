@@ -1,10 +1,19 @@
 package microcom.zw.com.microcom;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,76 +26,184 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class Utils {
-    public static String checkDetails(String message){
-        String Rs="";
+    private static int TIME_OUT = 10, READ_TIME_OUT = 30;
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
+    public static String checkDetails (String message) {
+        String Rs = "";
+
+        OkHttpClient client = new OkHttpClient.Builder ()
+                .connectTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .writeTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .readTimeout ( READ_TIME_OUT, TimeUnit.SECONDS )
+                .build ();
 
         JSONObject json;
 
-        Request request = new Request.Builder().url(
-                "http://www.rdsol.co.zw/afrocom/silentscripts/nfc_card.php?"+message).build();
+        Request request = new Request.Builder ().url (
+                "http://www.rdsol.co.zw/afrocom/silentscripts/nfc_card.php?" + message ).build ();
 
-        try ( Response response = client.newCall(request).execute()) {
-           // Response response = client.newCall(request).execute();
-            if(response.isSuccessful()){
-                String mess = response.body().string();
-                Log.e ( "xxx 4", "checkDetails: " +mess );
-                json=(new JSONObject(mess));
-                Rs=json.getString("message");
+        try (Response response = client.newCall ( request ).execute ()) {
+            // Response response = client.newCall(request).execute();
+            if ( response.isSuccessful () ) {
+                String mess = response.body ().string ();
+                Log.e ( "xxx 4", "checkDetails: " + mess );
+                json = (new JSONObject ( mess ));
+                Rs = json.getString ( "message" );
             }
 
-        }catch(IOException | JSONException e) {e.printStackTrace();}
+        } catch (IOException | JSONException e) {
+            e.printStackTrace ();
+        }
         return Rs;
     }
-    public static String saveUser(String message){
-        String Rs="";
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
+    public static String checkBalance (String message) {
+        String Rs = "";
+
+        OkHttpClient client = new OkHttpClient.Builder ()
+                .connectTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .writeTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .readTimeout ( READ_TIME_OUT, TimeUnit.SECONDS )
+                .build ();
+
         JSONObject json;
 
-        Request request = new Request.Builder().url(
-                "http://www.rdsol.co.zw/afrocom/silentscripts/adduser.php?"+message).build();
-        Log.e ( "xxx1", "saveUser: " +"http://www.rdsol.co.zw/afrocom/silentscripts/adduser.php?"+message );
-        try ( Response response = client.newCall(request).execute()) {
-
-            if(response.isSuccessful()){
-                String mess = response.body().string();
-
-                json=(new JSONObject(mess));
-                Rs=json.getString("message");
+        Request request = new Request.Builder ().url (
+                "http://www.rdsol.co.zw/afrocom/silentscripts/checkbalance.php?" + message ).build ();
+        Log.e ( "xxx1", "checkBalance: " + "http://www.rdsol.co.zw/afrocom/silentscripts/checkbalance.php?" + message );
+        try (Response response = client.newCall ( request ).execute ()) {
+            // Response response = client.newCall(request).execute();
+            if ( response.isSuccessful () ) {
+                String mess = response.body ().string ();
+                Log.e ( "xxx 4", "checkBalance: " + mess );
+                json = (new JSONObject ( mess ));
+                Rs = json.getString ( "message" );
             }
-        }catch(IOException | JSONException e) {e.printStackTrace();}
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace ();
+        }
         return Rs;
     }
-    public static String updateBalance(String message){
-        String Rs="";
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
+
+    public static String saveUser (String message) {
+        String Rs = "";
+        OkHttpClient client = new OkHttpClient.Builder ()
+                .connectTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .writeTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .readTimeout ( READ_TIME_OUT, TimeUnit.SECONDS )
+                .build ();
         JSONObject json;
 
-        Request request = new Request.Builder().url(
-                "http://www.rdsol.co.zw/afrocom/silentscripts/adduser.php?"+message).build();
-        Log.e ( "xxx1", "updateBalance: " +"http://www.rdsol.co.zw/afrocom/silentscripts/adduser.php?"+message );
-        try ( Response response = client.newCall(request).execute()) {
+        Request request = new Request.Builder ().url (
+                "http://www.rdsol.co.zw/afrocom/silentscripts/adduser.php?" + message ).build ();
+        Log.e ( "xxx1", "saveUser: " + "http://www.rdsol.co.zw/afrocom/silentscripts/adduser.php?" + message );
+        try (Response response = client.newCall ( request ).execute ()) {
 
-            if(response.isSuccessful()){
-                String mess = response.body().string();
+            if ( response.isSuccessful () ) {
+                String mess = response.body ().string ();
 
-                json=(new JSONObject(mess));
-                Rs=json.getString("message");
+                json = (new JSONObject ( mess ));
+                Rs = json.getString ( "message" );
             }
-        }catch(IOException | JSONException e) {e.printStackTrace();}
+        } catch (IOException | JSONException e) {
+            e.printStackTrace ();
+        }
         return Rs;
+    }
+
+    public static String updateBalance (String message) {
+        String Rs = "";
+        OkHttpClient client = new OkHttpClient.Builder ()
+                .connectTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .writeTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .readTimeout ( READ_TIME_OUT, TimeUnit.SECONDS )
+                .build ();
+        JSONObject json;
+
+        Request request = new Request.Builder ().url (
+                "http://www.rdsol.co.zw/afrocom/silentscripts/rechargebalance.php?" + message ).build ();
+        Log.e ( "xxx4", "updateBalance: " + "http://www.rdsol.co.zw/afrocom/silentscripts/rechargebalance.php?" + message );
+        try (Response response = client.newCall ( request ).execute ()) {
+
+            if ( response.isSuccessful () ) {
+                String mess = response.body ().string ();
+
+                json = (new JSONObject ( mess ));
+                Rs = json.getString ( "message" );
+                if(Rs.equals ( "saved" )){
+                    Rs =  "done" + "|"+json.getString ( "new_balance" ) ;
+                }
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace ();
+        }
+        return Rs;
+    }
+
+    public static String pay (String message) {
+        String Rs = "";
+        OkHttpClient client = new OkHttpClient.Builder ()
+                .connectTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .writeTimeout ( TIME_OUT, TimeUnit.SECONDS )
+                .readTimeout ( READ_TIME_OUT, TimeUnit.SECONDS )
+                .build ();
+        JSONObject json;
+
+        Request request = new Request.Builder ().url (
+                "http://www.rdsol.co.zw/afrocom/silentscripts/makepayment.php?" + message ).build ();
+        Log.e ( "xxx1", "pay: " + "http://www.rdsol.co.zw/afrocom/silentscripts/makepayment.php?" + message );
+        try (Response response = client.newCall ( request ).execute ()) {
+
+            if ( response.isSuccessful () ) {
+                String mess = response.body ().string ();
+
+                json = (new JSONObject ( mess ));
+                Rs = json.getString ( "message" );
+
+                if(Rs.equals ( "done" )){
+                    Rs =  "done" + "|"+json.getString ( "new_balance" ) +  "|"+json.getString ( "last_balance" );
+                }
+                if(Rs.equals ( "broke" )){
+                    Rs =  "broke" + "|"+json.getString ( "last_balance" ) ;
+                }
+
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace ();
+        }
+        return Rs;
+    }
+    @SuppressLint("MissingPermission")
+    public static String getPhoneNumber (Context context) {
+        TelephonyManager tMgr = (TelephonyManager) context.getSystemService ( Context.TELEPHONY_SERVICE );
+
+        return  tMgr.getLine1Number ();
+
+
+    }
+    public static String getChars(int numberOFCharsToGet , String str) {
+        return str.length() < numberOFCharsToGet ? str : str.substring(0, numberOFCharsToGet);
+    }
+    public static String androidId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+    }
+    public static   String getPhone(Context context ,Activity activity) {
+        TelephonyManager phoneMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return "";
+        }
+        return phoneMgr.getLine1Number();
+    }
+    public static boolean isThereSim(Context context){
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);  //gets the current TelephonyManager
+        if (tm.getSimState() != TelephonyManager.SIM_STATE_ABSENT){
+            //the phone has a sim card
+            return true;
+        } else {
+            //no sim card available
+            return false;
+        }
+
     }
 }

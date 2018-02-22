@@ -19,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:theme="@style/AppTheme.NoActionBar"
             android:name=".Home"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -26,6 +27,27 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+        </activity>
+        <activity
+            android:name=".AddUser"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_home"
+            >
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter"/>
+        </activity>
+        <activity android:name=".RechargeAcc">
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED"/>
 
@@ -38,18 +60,20 @@
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter"/>
         </activity>
-        <activity
-            android:name=".AddUser"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity android:name=".RechargeAcc">
-        </activity>
         <activity android:name=".CheckBalance">
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter"/>
+        </activity>
+        <activity android:name=".Info">
         </activity>
     </application>
 

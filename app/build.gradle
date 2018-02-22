@@ -25,7 +25,7 @@ android {
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
-
+    maven { url "http://dl.bintray.com/ihongqiqu/maven" }
 }
 
 dependencies {
@@ -35,4 +35,5 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
     compile 'com.github.sd6352051:NiftyDialogEffects:1.0.0'
+    compile 'com.ihongqiqu:android-utils:1.0.2'
 }

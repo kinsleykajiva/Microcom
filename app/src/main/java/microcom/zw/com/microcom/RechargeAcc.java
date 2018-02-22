@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -35,7 +36,7 @@ private EditText amountToAdd;
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private IntentFilter writeTagFilters[];
-    private boolean writeMode;
+    private boolean writeMode ,canWrite = false;
     private  String accountName ="" ,cardNumber  ="",balance ="" ,Alltxt = "";
     private Tag myTag;
 private Button btnUpdate;
@@ -62,7 +63,7 @@ private Button btnUpdate;
                 return;
             }
             showProgressDialog ( true );
-            new MakeChecks().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
+            new MakeChecks().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&amount=" + amount );
 
         } );
 
@@ -118,7 +119,8 @@ private Button btnUpdate;
                  cardNumber = value_split[ 1 ];
                   balance = value_split[ 2 ];
                 Alltxt= text;
-                UserName.setText("Account : " + accountName +  " \n"+ "Car Number"+cardNumber + "Last Balance "+balance);
+
+                UserName.setText("Account : " + accountName +  " \n"+ "Car Number"+cardNumber + "Current Balance "+balance);
 
             }
 
@@ -136,6 +138,44 @@ private Button btnUpdate;
         protected void onPostExecute (String s) {
             super.onPostExecute ( s );
             showProgressDialog ( false);
+            Log.e ( "xxx", "onPostExecute: "+s  );
+            if(s.isEmpty ()){
+                //status.setText ( "Connection Error" );
+                nifftyDialogs.messageOkError ("Server Response",  "Connection Error"  );
+               // status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
+                Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
+                return;
+            }
+            if(s.equals ( "unfound" )){
+                nifftyDialogs.messageOkError ("Error !" ,"User doesn't Exist,Register!");
+                Toast.makeText ( context, "User doesn't Exist,Register", Toast.LENGTH_LONG ).show ();
+                return;
+            }
+            if(s.contains ( "done" )){
+                String[] value_split = s.split("\\|");
+                nifftyDialogs.messageOk ("Recharged !" ,"New Balance: $" +value_split[1]);
+
+                try {
+                    if ( myTag == null ) {
+                        canWrite = false ;
+                        Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
+                    } else {
+                        write (
+                                accountName + "|" + cardNumber + "|" + value_split[1],
+
+                                myTag
+                        );
+                        canWrite = true ;
+                       // tagStatus.setText ( "Saved To Card" );
+                        UserName.append ( "\n\n" );
+                        UserName.append( "\n Newer Balance :"+value_split[1]);
+                        Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                    }
+                } catch (IOException | FormatException e) {
+                    Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                    e.printStackTrace ();
+                }
+            }
         }
     }
     /**

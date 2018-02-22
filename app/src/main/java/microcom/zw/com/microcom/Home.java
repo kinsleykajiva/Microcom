@@ -1,7 +1,11 @@
 package microcom.zw.com.microcom;
 
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -13,10 +17,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private Tag myTag;
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate ( savedInstanceState );
@@ -45,8 +50,36 @@ public class Home extends AppCompatActivity
             super.onBackPressed ();
         }
     }
+    /**
+     * Read From NFC Tag
+     * @param intent receive intent to read the nfc tag
+     * */
+    private void readFromIntent(Intent intent) {
+        String action = intent.getAction();
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage[] msgs = null;
+            if (rawMsgs != null) {
+                msgs = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    msgs[i] = (NdefMessage) rawMsgs[i];
+                }
+            }
+            Toast.makeText ( this, "Open Next Activity", Toast.LENGTH_SHORT ).show ();
+           // buildTagViews(msgs);
+        }
+    }
 
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        readFromIntent(intent);
+        if( NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())){
+            myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        }
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -67,6 +100,9 @@ public class Home extends AppCompatActivity
 
         if ( id == R.id.nav_check_balance ) {
             startActivity ( new Intent ( this, CheckBalance.class ) );
+        }
+        if ( id == R.id.nav_info ) {
+            startActivity ( new Intent ( this, Info.class ) );
         }
 
 

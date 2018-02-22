@@ -1,10 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
+    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context="microcom.zw.com.microcom.CheckBalance">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textStyle="bold"
+
+        android:textColor="@color/black"
+        android:text="Check Balance\n Tap to Check Balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/status"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:text="::"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -1,56 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="microcom.zw.com.microcom.MainActivity">
 
     <TextView
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
-        android:gravity="center"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="17sp"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="Tap to Make Payment"
         android:textColor="@color/black"
-        android:text="Card Information">
+        android:textSize="17sp"
+        android:textStyle="bold">
     </TextView>
 
 
     <TextView
-        android:layout_marginTop="15dp"
         android:id="@+id/nfc_contents"
-        android:textColor="@color/black"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:textColor="@color/black"
         />
 
 
     <TextView
-        android:layout_marginTop="10dp"
-        android:textColor="#000000"
         android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
         android:padding="12dp"
+        android:textColor="@color/black"/>
 
-       android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
     <View
-        android:layout_below="@+id/det"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="5dp"
-        android:background="@color/grey"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <Button
+        android:layout_height="1dp"
+        android:layout_below="@+id/det"
+        android:layout_marginBottom="5dp"
         android:layout_marginTop="10dp"
+        android:background="@color/grey"/>
+    <TextView
+        android:id="@+id/tagStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="@color/black"/>
+    <Button
         android:id="@+id/brnadd"
-        android:layout_gravity="center"
-        android:text="Add User"
-        android:padding="5dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        android:text="Add User"
+        android:visibility="gone"/>
 
 </LinearLayout>

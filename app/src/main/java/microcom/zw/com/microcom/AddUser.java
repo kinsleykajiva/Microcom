@@ -224,6 +224,7 @@ public class AddUser extends AppCompatActivity {
 
     private void initViews () {
         getSupportActionBar ().setTitle ( "Add User" );
+
         Name = findViewById ( R.id.Name );
         Balance = findViewById ( R.id.Balance );
         number = findViewById ( R.id.number );
