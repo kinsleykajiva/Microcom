@@ -1,0 +1,21 @@
+
+ssquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(â“ûÿÿÿÿ8õæ…ùš,
+usquid:S1192"TDefine a constant instead of duplicating this literal "User Already Exists" 3 times.(ËÖ²–ûÿÿÿÿ8õ÷ˆùš,
+zsquid:S1192"YDefine a constant instead of duplicating this literal "Saving failed. Try again" 3 times.(™Ñ—Áıÿÿÿÿ8Ÿùš,
+`squid:S2147"DCombine this catch with the one at line 86, which has the same body.(û¬ÜŠ8õæ…ùš,
+lsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(°¸ƒ™ıÿÿÿÿ8ØØùš,
+usquid:S1192"TDefine a constant instead of duplicating this literal "User Saved. Go Back" 3 times.(¾¿Óÿÿÿÿÿ8üÊŒùš,
+‚squid:S1488"aImmediately return this expression instead of assigning it to the temporary variable "recordNFC".(Çé®Ÿùÿÿÿÿ8ØØùš,
+psquid:S00100"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÑªÆ«øÿÿÿÿ8ØØùš,
+psquid:S00100"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±¨‰ üÿÿÿÿ8ØØùš,
+ssquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(°ì¨şÿÿÿÿ8õæ…ùš,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8õæ…ùš,
+osquid:MaximumInheritanceDepth"<This class has 7 parents which is greater than 5 authorized.(¹ÓÒııÿÿÿÿ8õæ…ùš,
+Tsquid:S1197"8Move the array designator from the variable to the type.(çÃŒ·8õæ…ùš,
+ssquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ó‘’»ûÿÿÿÿ8õæ…ùš,
+lsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(—³¹¡ÿÿÿÿÿ8ØØùš,
+tsquid:S00116"RRename this field "Balance" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Õ¢üÿÿÿÿ8õæ…ùš,
+Fsquid:S1659"%Declare "Balance" on a separate line.(Õ¢üÿÿÿÿ8õæ…ùš,
+Esquid:S1659"$Declare "number" on a separate line.(Õ¢üÿÿÿÿ8õæ…ùš,
+qsquid:S00116"ORename this field "Name" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Õ¢üÿÿÿÿ8õæ…ùš,
+Nsquid:S1068"-Remove this unused "writeMode" private field.(Íúµ¹ÿÿÿÿÿ8õæ…ùš,

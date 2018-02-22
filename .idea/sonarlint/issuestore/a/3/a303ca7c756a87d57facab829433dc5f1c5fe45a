@@ -1,0 +1,18 @@
+
+Esquid:S1659"$Declare "brnadd" on a separate line.(×ãÐëþÿÿÿÿ8Ø€£ùš,
+bsquid:HiddenFieldCheck";Rename "message" which hides the field declared at line 45.(€“¥”8êÛ»ùš,
+psquid:S00100"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±¨‰ üÿÿÿÿ8êÛ»ùš,
+Fsquid:S1068"*Remove this unused "status" private field.(ªƒÖº8óüžùš,
+@squid:S1659"$Declare "status" on a separate line.(ªƒÖº8óüžùš,
+Nsquid:S1068"-Remove this unused "writeMode" private field.(Íúµ¹ÿÿÿÿÿ8óüžùš,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ8êÛ»ùš,
+qsquid:S1450"URemove the "status" field and declare it as a local variable in the relevant methods.(ªƒÖº8óüžùš,
+`squid:S2147"DCombine this catch with the one at line 66, which has the same body.(û¬ÜŠ8Îš¹ùš,
+‚squid:S1488"aImmediately return this expression instead of assigning it to the temporary variable "recordNFC".(Çé®Ÿùÿÿÿÿ8êÛ»ùš,
+Tsquid:S1197"8Move the array designator from the variable to the type.(çÃŒ·8óüžùš,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ8Îš¹ùš,
+Psquid:S1066"/Merge this if statement with the enclosing one.(ÏòÙÉýÿÿÿÿ8êÛ»ùš,
+\squid:UselessImportCheck".Remove this unused import 'android.view.View'.(Ø½­äþÿÿÿÿ8Îš¹ùš,
+psquid:S00100"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÑªÆ«øÿÿÿÿ8êÛ»ùš,
+jsquid:MaximumInheritanceDepth"<This class has 7 parents which is greater than 5 authorized.(²Ú±Ž8óüžùš,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(’Ñí8êÛ»ùš,

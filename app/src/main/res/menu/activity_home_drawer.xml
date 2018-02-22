@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_startswipe"
+            android:icon="@drawable/ic_all_out_black_24dp"
+            android:title="Start Swiper"/>
+        <item
+            android:id="@+id/nav_add_account"
+            android:icon="@drawable/ic_account_circle_black_24dp"
+            android:title="Add Account"/>
+        <item
+            android:id="@+id/nav_recharge"
+            android:icon="@drawable/ic_add_circle_black_24dp"
+            android:title="Recharge"/>
+        <item
+            android:id="@+id/nav_check_balance"
+            android:icon="@drawable/ic_account_balance_wallet_black_24dp"
+            android:title="Check Balance"/>
+    </group>
+
+
+</menu>

@@ -17,6 +17,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,49 +52,51 @@ public class AddUser extends AppCompatActivity {
         setContentView ( R.layout.activity_add_user );
         initObjects ();
         initViews ();
-        brnSave.setOnClickListener ( new View.OnClickListener () {
-            @Override
-            public void onClick (View v) {
-                String Name_ = Name.getText ().toString ().trim ();
-                String Balance_ = Balance.getText ().toString ().trim ();
-                String number_ = number.getText ().toString ().trim ();
-
-                if ( Name_.isEmpty () ) {
-                    Toast.makeText ( AddUser.this, "Name cant be Empty", Toast.LENGTH_LONG ).show ();
-                    return;
-                }
-
-                if ( number_.isEmpty () ) {
-                    Toast.makeText ( AddUser.this, "Card Number cant be Empty", Toast.LENGTH_LONG ).show ();
-                    return;
-                }
-                if ( Balance_.isEmpty () ) {
-                    Toast.makeText ( AddUser.this, "Balance cant be Empty", Toast.LENGTH_LONG ).show ();
-                    return;
-                }
-                showProgressDialog ( true );
-                try {
-                    if ( myTag == null ) {
-                        Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
-                    } else {
-                        write (
-                                Name_ + "|" + number_ + "|" + Balance_,
-                                /*"person|12345|23.00",*/
-                                myTag
-                        );
-                        Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
-                    }
-                } catch (IOException e) {
-                    Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
-                    e.printStackTrace ();
-                } catch (FormatException e) {
-                    Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
-                    e.printStackTrace ();
-                }
-                new MakeCheks ().execute ( "accountName=" + Name_ + "&cardNumber=" + number_ + "&balance=" + Balance_ );
-
-
+        brnSave.setOnClickListener ( v -> {
+            String Name_ = Name.getText ().toString ().trim ();
+            String Balance_ = Balance.getText ().toString ().trim ();
+            String number_ = number.getText ().toString ().trim ();
+            boolean canWrite = false;
+            if ( Name_.isEmpty () ) {
+                Toast.makeText ( AddUser.this, "Name cant be Empty", Toast.LENGTH_LONG ).show ();
+                return;
             }
+
+            if ( number_.isEmpty () ) {
+                Toast.makeText ( AddUser.this, "Card Number cant be Empty", Toast.LENGTH_LONG ).show ();
+                return;
+            }
+            if ( Balance_.isEmpty () ) {
+                Toast.makeText ( AddUser.this, "Balance cant be Empty", Toast.LENGTH_LONG ).show ();
+                return;
+            }
+            showProgressDialog ( true );
+            try {
+                if ( myTag == null ) {
+                    canWrite = false ;
+                    Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
+                } else {
+                    write (
+                            Name_ + "|" + number_ + "|" + Balance_,
+
+                            myTag
+                    );
+                    canWrite = true ;
+                    Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                }
+            } catch (IOException e) {
+                Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                e.printStackTrace ();
+            } catch (FormatException e) {
+                Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                e.printStackTrace ();
+            }
+            if(canWrite){
+
+                new MakeCheks ().execute ( "accountName=" + Name_ + "&cardNumber=" + number_ + "&balance=" + Balance_ );
+            }
+
+
         } );
     }
 
@@ -109,6 +112,13 @@ public class AddUser extends AppCompatActivity {
             super.onPostExecute ( s );
             showProgressDialog ( false );
             Log.e ( "xxx", "onPostExecute: " + s );
+            if(s.isEmpty ()){
+                status.setText ( "Connection Error" );
+                nifftyDialogs.messageOkError ("Server Response",  "Connection Error"  );
+                status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
+                Toast.makeText ( AddUser.this, "Connection Error", Toast.LENGTH_LONG ).show ();
+                return;
+            }
             if ( s.equals ( "exists" ) ) {
                 status.setText ( "User Already Exists" );
                 nifftyDialogs.messageOkError ("Server Response",  "User Already Exists"  );
@@ -138,6 +148,8 @@ public class AddUser extends AppCompatActivity {
     }
 
     private void initObjects () {
+        getSupportActionBar ().setTitle ( "Add User" );
+        getSupportActionBar ().setDisplayHomeAsUpEnabled ( true );
         nifftyDialogs = new NifftyDialogs ( context );
         progressDialog = new ProgressDialog ( this );
         nfcAdapter = NfcAdapter.getDefaultAdapter ( this );
@@ -260,5 +272,15 @@ public class AddUser extends AppCompatActivity {
         ndef.writeNdefMessage ( message );
         // Close the connection
         ndef.close ();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

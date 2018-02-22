@@ -1,23 +1,21 @@
 package microcom.zw.com.microcom;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.app.ProgressDialog;
 import android.nfc.tech.Ndef;
+import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,77 +24,48 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static microcom.zw.com.microcom.Utils.checkDetails;
+import static microcom.zw.com.microcom.Utils.updateBalance;
 
-public class MainActivity extends AppCompatActivity {
-    private ProgressDialog progressDialog;
-    public static final String ERROR_DETECTED = "No NFC tag detected!";
-    public static final String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
-    public static final String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
-    private NifftyDialogs nifftyDialogs;
-   private NfcAdapter nfcAdapter;
+public class RechargeAcc extends AppCompatActivity {
+    private   String ERROR_DETECTED = "No NFC tag detected!";
+    private  String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
+    private  String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+private TextView UserName;
+private EditText amountToAdd;
+    private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private IntentFilter writeTagFilters[];
     private boolean writeMode;
-    private TextView tvNFCContent ,status ;
+    private  String accountName ="" ,cardNumber  ="",balance ="" ,Alltxt = "";
     private Tag myTag;
-    private static boolean isTaskRunning =false;
-    private     MakeCheks makeCheks ;
-    private String  balance="";
-    private Button  brnadd;
-
-    private Context context = MainActivity.this;
+private Button btnUpdate;
+    private NifftyDialogs nifftyDialogs;
+    private Context context = RechargeAcc.this;
+    private ProgressDialog progressDialog;
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate ( savedInstanceState );
-        setContentView ( R.layout.activity_main );
-     ///   startActivity( new Intent(this, Home.class) );
+        setContentView ( R.layout.activity_recharge_acc );
         initObjects();
         initViews();
-        brnadd.setOnClickListener ( v -> startActivity ( new Intent ( MainActivity.this, AddUser.class ) ) );
+        btnUpdate.setOnClickListener ( ev->{
+            String amount  = amountToAdd.getText ().toString ().trim ();
 
-    }
-    private void showProgressDialog (final boolean isToShow) {
-
-            if ( isToShow ) {
-                if ( ! progressDialog.isShowing () ) {
-                    progressDialog.setMessage ( "Processing ...Please wait." );
-                    progressDialog.setCancelable ( false );
-                    progressDialog.show ();
-                }
-            } else {
-                if ( progressDialog.isShowing () ) {
-                    progressDialog.dismiss ();
-                }
+            String[] value_split = Alltxt.split("\\|");
+            if ( value_split.length != 3 ) {
+                nifftyDialogs.messageOkError ( "Error" , "Error .Card Compromised" );
+                Toast.makeText ( context, "Error .Card Compromised", Toast.LENGTH_SHORT ).show ();
+                return;
             }
+            if(amount.isEmpty ()){
+                Toast.makeText ( context, "Amount Cant be Empty", Toast.LENGTH_SHORT ).show ();
+                return;
+            }
+            showProgressDialog ( true );
+            new MakeChecks().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
 
-    }
+        } );
 
-    private void initObjects () {
-        progressDialog = new ProgressDialog (this );
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        nifftyDialogs = new NifftyDialogs ( context );
-        if (nfcAdapter == null) {
-            // Stop here, we definitely need NFC
-            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        readFromIntent(getIntent());
-
-
-        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-        tagDetected.addCategory( Intent.CATEGORY_DEFAULT);
-        writeTagFilters = new IntentFilter[] { tagDetected };
-    }
-
-    private void initViews () {
-        status = findViewById ( R.id.status );
-        tvNFCContent = findViewById(R.id.nfc_contents);
-
-        brnadd = findViewById ( R.id.brnadd );
-        getSupportActionBar ().setTitle ( "Swipa Kombi" );
     }
     /**
      * Read From NFC Tag
@@ -118,43 +87,6 @@ public class MainActivity extends AppCompatActivity {
             buildTagViews(msgs);
         }
     }
-    private class MakeCheks extends AsyncTask< String, Void, String > {
-
-        @Override
-        protected String doInBackground (String... strings) {
-            return checkDetails(strings[0]);
-        }
-
-        @Override
-        protected void onPostExecute (String s) {
-            super.onPostExecute ( s );
-            showProgressDialog ( false );
-            isTaskRunning = false;
-            Log.e ( "xxx", "onPostExecute: "+s  );
-            if(s.isEmpty ()){
-                status.setText ( "Connection Error" );
-                nifftyDialogs.messageOkError ("Server Response",  "Connection Error"  );
-                status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
-                Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
-                return;
-            }
-            if ( !s.equals ( "none" ) ) {
-                if(balance.equals ( s )){
-                    nifftyDialogs.messageOk ( s    + "Same Balance");
-               Toast.makeText (MainActivity.this,"Same Balance",Toast.LENGTH_LONG).show();
-                }else{
-                    nifftyDialogs.justMessage ( "not the same Same Balance");
-                    Toast.makeText (MainActivity.this,"not the same Same Balance",Toast.LENGTH_LONG).show();
-                }
-
-
-            }else{
-                nifftyDialogs.messageOkError ( "Response","User not Found");
-                Toast.makeText (MainActivity.this,"User not Found",Toast.LENGTH_LONG).show();
-            }
-
-        }
-    }
     private void buildTagViews(NdefMessage[] msgs) {
         if (msgs == null || msgs.length == 0) return;
 
@@ -174,21 +106,38 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.e ( "xxx", "buildTagViews: " + text  );
         String[] value_split = text.split("\\|");
-
-        tvNFCContent.setText("NFC Content: " + text);
-        if(/*makeCheks.getStatus () != AsyncTask.Status.RUNNING*/ !isTaskRunning) {
-            if ( value_split.length == 3 ) {
-                String accountName = value_split[ 0 ];
-                String cardNumber = value_split[ 1 ];
-                balance = value_split[ 2 ];
-                showProgressDialog ( true );
-                makeCheks = new MakeCheks ();
-                isTaskRunning = true;
-                makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance );
-            }
+        if ( value_split.length != 3 ) {
+            nifftyDialogs.messageOkError ( "Error" , "Error .Card Compromised" );
+            Toast.makeText ( context, "Error .Card Compromised", Toast.LENGTH_SHORT ).show ();
+            return;
         }
+
+
+            if ( value_split.length == 3 ) {
+                 accountName = value_split[ 0 ];
+                 cardNumber = value_split[ 1 ];
+                  balance = value_split[ 2 ];
+                Alltxt= text;
+                UserName.setText("Account : " + accountName +  " \n"+ "Car Number"+cardNumber + "Last Balance "+balance);
+
+            }
+
     }
 
+
+    private class MakeChecks extends AsyncTask<String ,Void,String>{
+
+        @Override
+        protected String doInBackground (String... strings) {
+            return updateBalance(strings[0]);
+        }
+
+        @Override
+        protected void onPostExecute (String s) {
+            super.onPostExecute ( s );
+            showProgressDialog ( false);
+        }
+    }
     /**
      * Write to NFC Tag
      * @param text the text to write
@@ -254,5 +203,46 @@ public class MainActivity extends AppCompatActivity {
     private void WriteModeOff(){
         writeMode = false;
         nfcAdapter.disableForegroundDispatch(this);
+    }
+    private void showProgressDialog (final boolean isToShow) {
+
+        if ( isToShow ) {
+            if ( ! progressDialog.isShowing () ) {
+                progressDialog.setMessage ( "Processing ...Please wait." );
+                progressDialog.setCancelable ( false );
+                progressDialog.show ();
+            }
+        } else {
+            if ( progressDialog.isShowing () ) {
+                progressDialog.dismiss ();
+            }
+        }
+
+    }
+    private void initViews () {
+        UserName = findViewById ( R.id.UserName );
+        amountToAdd = findViewById ( R.id.amountToAdd );
+        btnUpdate = findViewById ( R.id.btnUpdate );
+    }
+
+    private void initObjects () {
+        nifftyDialogs = new NifftyDialogs ( this );
+        progressDialog = new ProgressDialog (this );
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        nifftyDialogs = new NifftyDialogs ( context );
+        if (nfcAdapter == null) {
+            // Stop here, we definitely need NFC
+            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        readFromIntent(getIntent());
+
+
+        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        tagDetected.addCategory( Intent.CATEGORY_DEFAULT);
+        writeTagFilters = new IntentFilter[] { tagDetected };
+
     }
 }
