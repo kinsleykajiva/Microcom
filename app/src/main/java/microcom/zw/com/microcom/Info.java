@@ -2,6 +2,7 @@ package microcom.zw.com.microcom;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import static microcom.zw.com.microcom.Utils.androidId;
@@ -20,10 +21,21 @@ private TextView deviceID ;
     }
 
     private void initViews () {
+        getSupportActionBar().setTitle ( "Check Balance" );
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         deviceID = findViewById ( R.id.deviceID  );
     }
 
     private void initObjects () {
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -16,6 +16,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +66,7 @@ private TextView status;
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
                 return;
             }
-            
+
             if(s.equals ( "unfound" )){
                 nifftyDialogs.messageOkError ("Error !" ,"User doesn't Exist,Register!");
                 Toast.makeText ( context, "User doesn't Exist,Register", Toast.LENGTH_LONG ).show ();
@@ -76,10 +77,13 @@ private TextView status;
 
 
 
+
         }
     }
     private void initViews () {
         status = findViewById ( R.id.status );
+        getSupportActionBar().setTitle ( "Check Balance" );
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     /**
      * Write to NFC Tag
@@ -183,7 +187,7 @@ private TextView status;
             if(isNetworkAvailable( context)) {
                 new MakeChecks ().execute ( "cardNumber=" + cardNumber );
             }else{
-
+                status.setText (  "No Internet Connection");
                     nifftyDialogs.messageOkError ( "Connection Error" , "No Internet Connection" );
 
             }
@@ -242,5 +246,14 @@ private TextView status;
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory( Intent.CATEGORY_DEFAULT);
         writeTagFilters = new IntentFilter[] { tagDetected };
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

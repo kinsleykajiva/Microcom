@@ -17,6 +17,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -260,6 +261,8 @@ private Button btnUpdate;
 
     }
     private void initViews () {
+        getSupportActionBar().setTitle ( "Top-Up Balance" );
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         UserName = findViewById ( R.id.UserName );
         amountToAdd = findViewById ( R.id.amountToAdd );
         btnUpdate = findViewById ( R.id.btnUpdate );
@@ -284,5 +287,14 @@ private Button btnUpdate;
         tagDetected.addCategory( Intent.CATEGORY_DEFAULT);
         writeTagFilters = new IntentFilter[] { tagDetected };
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

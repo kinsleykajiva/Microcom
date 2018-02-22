@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
 import static microcom.zw.com.microcom.MainActivity.ERROR_DETECTED;
 import static microcom.zw.com.microcom.MainActivity.WRITE_ERROR;
 import static microcom.zw.com.microcom.MainActivity.WRITE_SUCCESS;
@@ -92,8 +93,11 @@ public class AddUser extends AppCompatActivity {
                 e.printStackTrace ();
             }
             if(canWrite){
-
-                new MakeCheks ().execute ( "accountName=" + Name_ + "&cardNumber=" + number_ + "&balance=" + Balance_ );
+                if(isNetworkAvailable( context)) {
+                    new MakeCheks ().execute ( "accountName=" + Name_ + "&cardNumber=" + number_ + "&balance=" + Balance_ );
+                }else{
+                    nifftyDialogs.messageOkError ( "Connection Error" , "No Internet Connection" );
+                }
             }
 
 

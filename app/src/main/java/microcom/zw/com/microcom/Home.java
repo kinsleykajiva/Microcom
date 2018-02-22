@@ -1,6 +1,9 @@
 package microcom.zw.com.microcom;
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -21,7 +24,12 @@ import android.widget.Toast;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
     private Tag myTag;
+    private Context context = Home.this;
+    private NfcAdapter nfcAdapter;
+    private PendingIntent pendingIntent;
+    private IntentFilter writeTagFilters[];
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate ( savedInstanceState );
@@ -39,6 +47,20 @@ public class Home extends AppCompatActivity
 
         NavigationView navigationView = findViewById ( R.id.nav_view );
         navigationView.setNavigationItemSelectedListener ( this );
+
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (nfcAdapter == null) {
+            // Stop here, we definitely need NFC
+            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        readFromIntent(getIntent());
+        pendingIntent = PendingIntent.getActivity(this, 0, new Intent (this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        tagDetected.addCategory( Intent.CATEGORY_DEFAULT);
+        writeTagFilters = new IntentFilter[] { tagDetected };
     }
 
     @Override
@@ -107,8 +129,8 @@ public class Home extends AppCompatActivity
 
 
 
-        DrawerLayout drawer = findViewById ( R.id.drawer_layout );
-        drawer.closeDrawer ( GravityCompat.START );
+        //DrawerLayout drawer = findViewById ( R.id.drawer_layout );
+        //drawer.closeDrawer ( GravityCompat.START );
         return true;
     }
 }

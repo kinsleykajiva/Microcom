@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
+import static microcom.zw.com.microcom.CRUD.savePayment;
 import static microcom.zw.com.microcom.Utils.androidId;
 import static microcom.zw.com.microcom.Utils.checkDetails;
 import static microcom.zw.com.microcom.Utils.pay;
@@ -155,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
             if(s.contains ( "broke" )){
                 String[] value_split = s.split("\\|");
                 nifftyDialogs.messageOkError ("Insufficient Funds !" ," Balance $" + value_split[1]);
+                tvNFCContent.setText("Card Name:" + accountName + "\n Number:" +cardNumber + "\n Newer Balance :"+value_split[1]);
             }
             if(s.contains ( "done" )){
                 String[] value_split = s.split("\\|");
@@ -171,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                             myTag
                     );
                     canWrite = true ;
+                    savePayment(accountName ,cardNumber ,androidId(context));
                     tagStatus.setText ( "Saved To Card" );
                     tvNFCContent.setText("Card Name:" + accountName + "\n Number:" +cardNumber + "\n Newer Balance :"+value_split[1]);
                     Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
@@ -181,21 +184,7 @@ public class MainActivity extends AppCompatActivity {
             }
             }
 
-            /*if ( !s.equals ( "none" ) ) {
 
-                if(s.equals ( "" ))
-                if(balance.equals ( s )){
-                    nifftyDialogs.messageOk ( s    + "Same Balance");
-               Toast.makeText (MainActivity.this,"Same Balance",Toast.LENGTH_LONG).show();
-                }else{
-                    nifftyDialogs.justMessage ( "not the same Same Balance");
-                    Toast.makeText (MainActivity.this,"not the same Same Balance",Toast.LENGTH_LONG).show();
-                }
-
-            }else{
-                nifftyDialogs.messageOkError ( "Response","User not Found");
-                Toast.makeText (MainActivity.this,"User not Found",Toast.LENGTH_LONG).show();
-            }*/
 
         }
     }
