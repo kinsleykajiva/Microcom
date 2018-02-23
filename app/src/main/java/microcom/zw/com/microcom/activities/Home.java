@@ -1,4 +1,4 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.activities;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -15,8 +15,6 @@ import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,24 +23,30 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import microcom.zw.com.microcom.utils.NifftyDialogs;
+import microcom.zw.com.microcom.R;
+
 import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
-import static microcom.zw.com.microcom.CRUD.savePayment;
-import static microcom.zw.com.microcom.Utils.androidId;
-import static microcom.zw.com.microcom.Utils.pay;
+import static microcom.zw.com.microcom.DBAccess.CRUD.savePayment;
+import static microcom.zw.com.microcom.utils.Utils.ERROR_DETECTED;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_ERROR;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_SUCCESS;
+import static microcom.zw.com.microcom.utils.Utils.androidId;
+import static microcom.zw.com.microcom.utils.Utils.pay;
+import static microcom.zw.com.microcom.utils.Utils.playSound;
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String ERROR_DETECTED = "No NFC tag detected!";
-    private static final String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
-    private static final String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+
     private Tag myTag;
 
     private ProgressDialog progressDialog;
@@ -88,8 +92,12 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     private void initViews () {
         Toolbar toolbar = findViewById ( R.id.toolbar );
         setSupportActionBar ( toolbar );
+         ImageView justSwipe;   justSwipe = findViewById ( R.id.justSwipe );
+        status = findViewById ( R.id.status );
+        tvNFCContent = findViewById ( R.id.nfc_contents );
+        tagStatus = findViewById ( R.id.tagStatus );
 
-
+        justSwipe = findViewById ( R.id.justSwipe );
         DrawerLayout drawer = findViewById ( R.id.drawer_layout );
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle (
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
@@ -98,6 +106,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
         NavigationView navigationView = findViewById ( R.id.nav_view );
         navigationView.setNavigationItemSelectedListener ( this );
+        animateViewBounce ( justSwipe );
     }
 
     private void initObjects () {
@@ -150,6 +159,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
                     makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance + "&deviceid=" + androidId ( context ) );
                 } else {
+                    playSound(context ,2);
                     nifftyDialogs.messageOkError ( "Connection Error", "No Internet Connection" );
                 }
             }
@@ -241,6 +251,10 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
     }
 
+    private void animateViewBounce(View v){
+        Animation animation = AnimationUtils.loadAnimation ( context , R.anim.bounce );
+        v.startAnimation ( animation );
+    }
     /**
      * Read From NFC Tag
      *
@@ -281,18 +295,22 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                 nifftyDialogs.messageOkError ( "Server Response", "Connection Error" );
                 status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
+                playSound(context ,2);
                 return;
             }
             if ( s.equals ( "none" ) ) {
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ( "Error !", "User doesn't Exist,Register!" );
             }
             if ( s.equals ( "err_update" ) ) {
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ( "Error !", "Transaction Failed !" );
             }
             if ( s.contains ( "broke" ) ) {
+                playSound(context ,2);
                 String[] value_split = s.split ( "\\|" );
                 nifftyDialogs.messageOkError ( "Insufficient Funds !", " Balance $" + value_split[ 1 ] );
-                tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n Newer Balance :" + value_split[ 1 ] );
+                tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n  Balance :" + value_split[ 1 ] );
             }
             if ( s.contains ( "done" ) ) {
                 String[] value_split = s.split ( "\\|" );
@@ -301,6 +319,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                 try {
                     if ( myTag == null ) {
                         canWrite = false;
+                        playSound(context ,2);
                         Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
                     } else {
                         write (
@@ -309,12 +328,14 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                                 myTag
                         );
                         canWrite = true;
+                        playSound(context ,1);
                         savePayment ( accountName, cardNumber, androidId ( context ) );
                         tagStatus.setText ( "Saved To Card" );
-                        tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n Newer Balance :" + value_split[ 1 ] );
+                        tvNFCContent.append (  "\n\n\n Newer Balance :" + value_split[ 1 ] );
                         Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
                     }
                 } catch (IOException | FormatException e) {
+                    playSound(context ,2);
                     Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                     e.printStackTrace ();
                 }
@@ -347,6 +368,9 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
         if ( id == R.id.nav_info ) {
             startActivity ( new Intent ( this, Info.class ) );
+        }
+        if ( id == R.id.nav_logs ) {
+            startActivity ( new Intent ( this, PaidLogs.class ) );
         }
 
 

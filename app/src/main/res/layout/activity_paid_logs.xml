@@ -4,28 +4,23 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context="microcom.zw.com.microcom.activities.CheckBalance">
-
-    <TextView
-        android:gravity="center"
-        android:textSize="16sp"
-        android:textStyle="bold"
-
-        android:textColor="@color/black"
-        android:text="Check Balance\n Tap to Check Balance"
+    tools:context="microcom.zw.com.microcom.activities.PaidLogs">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <TextView
-        android:id="@+id/status"
-        android:textSize="16sp"
-        android:textStyle="normal"
+        android:id="@+id/recycViewStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="No Logs to show yet"
         android:textColor="@color/black"
-        android:text="::"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:textSize="13sp"
+        android:visibility="gone"/>
 
 </LinearLayout>

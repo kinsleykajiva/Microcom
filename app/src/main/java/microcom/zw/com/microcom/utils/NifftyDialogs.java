@@ -1,4 +1,4 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.utils;
 
 import android.content.Context;
 import android.os.Build;
@@ -11,7 +11,7 @@ import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 
 import java.util.Random;
 
-
+import microcom.zw.com.microcom.R;
 
 
 /**

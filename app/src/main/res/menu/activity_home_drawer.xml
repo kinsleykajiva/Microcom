@@ -21,6 +21,10 @@
             android:icon="@drawable/ic_account_balance_wallet_black_24dp"
             android:title="Check Balance"/>
         <item
+            android:id="@+id/nav_logs"
+            android:icon="@drawable/ic_library_books_black_24dp"
+            android:title="Payment Logs"/>
+        <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_info_outline_black_24dp"
             android:title="App Info"/>

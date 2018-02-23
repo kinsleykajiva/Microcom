@@ -1,4 +1,4 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.activities;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -23,14 +23,15 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import microcom.zw.com.microcom.utils.NifftyDialogs;
+import microcom.zw.com.microcom.R;
+
 import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
-import static microcom.zw.com.microcom.Utils.checkBalance;
+import static microcom.zw.com.microcom.utils.Utils.checkBalance;
 
 public class CheckBalance extends AppCompatActivity {
 private TextView status;
-    private   String ERROR_DETECTED = "No NFC tag detected!";
-    private  String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
-    private  String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private IntentFilter writeTagFilters[];

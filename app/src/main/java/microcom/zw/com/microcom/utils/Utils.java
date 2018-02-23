@@ -1,15 +1,17 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.utils;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import microcom.zw.com.microcom.R;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -26,7 +28,10 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class Utils {
-    private static int TIME_OUT = 10, READ_TIME_OUT = 30;
+    public static final String ERROR_DETECTED = "No NFC tag detected!";
+    public static final String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
+    public static final String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+    public static int TIME_OUT = 10, READ_TIME_OUT = 30;
 
     public static String checkDetails (String message) {
         String Rs = "";
@@ -205,5 +210,13 @@ public class Utils {
             return false;
         }
 
+    }
+    /**Play sound Effect
+     * if type - 1 => general
+     * if type -2 => error
+     * */
+    public static void playSound(Context context , int type){
+        MediaPlayer mp = MediaPlayer.create(context, type == 1 ? R.raw.general_beep : R.raw.error);
+        mp.start();
     }
 }

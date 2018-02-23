@@ -1,4 +1,4 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.activities;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,12 +26,14 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import microcom.zw.com.microcom.utils.NifftyDialogs;
+import microcom.zw.com.microcom.R;
+
 import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
-import static microcom.zw.com.microcom.MainActivity.ERROR_DETECTED;
-import static microcom.zw.com.microcom.MainActivity.WRITE_ERROR;
-import static microcom.zw.com.microcom.MainActivity.WRITE_SUCCESS;
-import static microcom.zw.com.microcom.Utils.checkDetails;
-import static microcom.zw.com.microcom.Utils.saveUser;
+import static microcom.zw.com.microcom.utils.Utils.ERROR_DETECTED;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_ERROR;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_SUCCESS;
+import static microcom.zw.com.microcom.utils.Utils.saveUser;
 
 public class AddUser extends AppCompatActivity {
     private Button brnSave;
@@ -83,13 +84,13 @@ public class AddUser extends AppCompatActivity {
                             myTag
                     );
                     canWrite = true ;
-                    Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                    Toast.makeText ( context,WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
                 }
             } catch (IOException e) {
                 Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                 e.printStackTrace ();
             } catch (FormatException e) {
-                Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                Toast.makeText ( context,WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                 e.printStackTrace ();
             }
             if(canWrite){

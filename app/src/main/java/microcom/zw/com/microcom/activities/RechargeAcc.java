@@ -1,11 +1,10 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.activities;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -26,12 +25,18 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static microcom.zw.com.microcom.Utils.updateBalance;
+import microcom.zw.com.microcom.utils.NifftyDialogs;
+import microcom.zw.com.microcom.R;
+
+import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
+import static microcom.zw.com.microcom.utils.Utils.ERROR_DETECTED;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_ERROR;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_SUCCESS;
+import static microcom.zw.com.microcom.utils.Utils.playSound;
+import static microcom.zw.com.microcom.utils.Utils.updateBalance;
 
 public class RechargeAcc extends AppCompatActivity {
-    private   String ERROR_DETECTED = "No NFC tag detected!";
-    private  String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
-    private  String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+
 private TextView UserName;
 private EditText amountToAdd;
     private NfcAdapter nfcAdapter;
@@ -64,8 +69,11 @@ private Button btnUpdate;
                 return;
             }
             showProgressDialog ( true );
-            new MakeChecks().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&amount=" + amount );
-
+                    if ( isNetworkAvailable ( context ) ) {
+                        new MakeChecks ().execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&amount=" + amount );
+                    }else {
+                        nifftyDialogs.messageOkError ( "Connection Error", "No Internet Connection" );
+                    }
         } );
 
     }
@@ -142,17 +150,20 @@ private Button btnUpdate;
             Log.e ( "xxx", "onPostExecute: "+s  );
             if(s.isEmpty ()){
                 //status.setText ( "Connection Error" );
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ("Server Response",  "Connection Error"  );
                // status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
                 return;
             }
             if(s.equals ( "unfound" )){
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ("Error !" ,"User doesn't Exist,Register!");
                 Toast.makeText ( context, "User doesn't Exist,Register", Toast.LENGTH_LONG ).show ();
                 return;
             }
             if(s.contains ( "done" )){
+
                 String[] value_split = s.split("\\|");
                 nifftyDialogs.messageOk ("Recharged !" ,"New Balance: $" +value_split[1]);
 
@@ -169,10 +180,12 @@ private Button btnUpdate;
                         canWrite = true ;
                        // tagStatus.setText ( "Saved To Card" );
                         UserName.append ( "\n\n" );
+                        playSound(context ,1);
                         UserName.append( "\n Newer Balance :"+value_split[1]);
                         Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
                     }
                 } catch (IOException | FormatException e) {
+                    playSound(context ,2);
                     Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                     e.printStackTrace ();
                 }

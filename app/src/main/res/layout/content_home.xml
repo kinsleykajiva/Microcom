@@ -6,8 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/colorPrimary"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="microcom.zw.com.microcom.Home"
+    tools:context="microcom.zw.com.microcom.activities.Home"
     tools:showIn="@layout/app_bar_home">
 
     <TextView
@@ -18,8 +19,8 @@
         android:text="Tap to Make Payment"
         android:textColor="@color/black"
         android:textSize="17sp"
-        android:textStyle="bold">
-    </TextView>
+        android:textStyle="bold"/>
+
 
 
     <TextView
@@ -40,13 +41,13 @@
         android:padding="12dp"
         android:textColor="@color/black"/>
 
-    <View
+   <!-- <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/det"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="10dp"
-        android:background="@color/grey"/>
+        android:background="@color/black"/>-->
     <TextView
         android:id="@+id/tagStatus"
         android:layout_width="match_parent"
@@ -55,6 +56,14 @@
         android:gravity="center"
         android:padding="12dp"
         android:textColor="@color/black"/>
+    <ImageView
+        android:id="@+id/justSwipe"
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/just_swipe"
+        />
     <Button
         android:id="@+id/brnadd"
         android:layout_width="wrap_content"

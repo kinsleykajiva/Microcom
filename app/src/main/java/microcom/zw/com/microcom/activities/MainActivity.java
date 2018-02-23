@@ -1,4 +1,4 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.activities;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -19,25 +19,31 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import microcom.zw.com.microcom.utils.NifftyDialogs;
+import microcom.zw.com.microcom.R;
+
 import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
-import static microcom.zw.com.microcom.CRUD.savePayment;
-import static microcom.zw.com.microcom.Utils.androidId;
-import static microcom.zw.com.microcom.Utils.checkDetails;
-import static microcom.zw.com.microcom.Utils.pay;
+import static microcom.zw.com.microcom.DBAccess.CRUD.savePayment;
+import static microcom.zw.com.microcom.utils.Utils.ERROR_DETECTED;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_ERROR;
+import static microcom.zw.com.microcom.utils.Utils.WRITE_SUCCESS;
+import static microcom.zw.com.microcom.utils.Utils.androidId;
+import static microcom.zw.com.microcom.utils.Utils.pay;
+import static microcom.zw.com.microcom.utils.Utils.playSound;
 
 public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
-    private static final String ERROR_DETECTED = "No NFC tag detected!";
-    private static final String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
-    private static final String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+
     private NifftyDialogs nifftyDialogs;
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private String accountName, cardNumber;
     private TextView tvNFCContent, status, tagStatus;
     private Tag myTag;
+    private ImageView justSwipe;
     private static boolean isTaskRunning = false;
     private boolean canWrite = false;
     private MakeCheks makeCheks;
@@ -61,9 +68,14 @@ public class MainActivity extends AppCompatActivity {
         ///   startActivity( new Intent(this, Home.class) );
         initObjects ();
         initViews ();
+        animateViewBounce ( justSwipe );
 
         brnadd.setOnClickListener ( v -> startActivity ( new Intent ( MainActivity.this, AddUser.class ) ) );
 
+    }
+    private void animateViewBounce(View v){
+        Animation animation = AnimationUtils.loadAnimation ( context , R.anim.bounce );
+        v.startAnimation ( animation );
     }
 
     private void showProgressDialog (final boolean isToShow) {
@@ -106,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         tvNFCContent = findViewById ( R.id.nfc_contents );
         tagStatus = findViewById ( R.id.tagStatus );
         brnadd = findViewById ( R.id.brnadd );
+        justSwipe = findViewById ( R.id.justSwipe );
         getSupportActionBar ().setTitle ( "Swipa Kombi" );
         getSupportActionBar ().setDisplayHomeAsUpEnabled ( true );
     }
@@ -147,18 +160,22 @@ public class MainActivity extends AppCompatActivity {
             Log.e ( "xxx", "onPostExecute: " + s );
             if ( s.isEmpty () ) {
                 status.setText ( "Connection Error" );
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ( "Server Response", "Connection Error" );
                 status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
                 return;
             }
             if ( s.equals ( "none" ) ) {
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ( "Error !", "User doesn't Exist,Register!" );
             }
             if ( s.equals ( "err_update" ) ) {
+                playSound(context ,2);
                 nifftyDialogs.messageOkError ( "Error !", "Transaction Failed !" );
             }
             if ( s.contains ( "broke" ) ) {
+                playSound(context ,2);
                 String[] value_split = s.split ( "\\|" );
                 nifftyDialogs.messageOkError ( "Insufficient Funds !", " Balance $" + value_split[ 1 ] );
                 tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n Newer Balance :" + value_split[ 1 ] );
@@ -171,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                     if ( myTag == null ) {
                         canWrite = false;
                         Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
+                        playSound(context ,2);
                     } else {
                         write (
                                 accountName + "|" + cardNumber + "|" + value_split[ 1 ],
@@ -178,12 +196,14 @@ public class MainActivity extends AppCompatActivity {
                                 myTag
                         );
                         canWrite = true;
+                        playSound(context ,1);
                         savePayment ( accountName, cardNumber, androidId ( context ) );
                         tagStatus.setText ( "Saved To Card" );
                         tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n Newer Balance :" + value_split[ 1 ] );
                         Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
                     }
                 } catch (IOException | FormatException e) {
+                    playSound(context ,2);
                     Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                     e.printStackTrace ();
                 }
@@ -227,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
 
                     makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance + "&deviceid=" + androidId ( context ) );
                 } else {
+                    playSound(context ,2);
                     nifftyDialogs.messageOkError ( "Connection Error", "No Internet Connection" );
                 }
             }

@@ -1,4 +1,4 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.DBAccess;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

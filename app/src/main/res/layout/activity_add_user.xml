@@ -6,9 +6,10 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="5dp"
-            tools:context="microcom.zw.com.microcom.AddUser">
+            tools:context="microcom.zw.com.microcom.activities.AddUser">
 
     <LinearLayout
+        android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -76,11 +77,13 @@
             android:inputType="number|numberDecimal"/>
 
         <Button
+            android:background="@drawable/curvey_buttonaccent"
             android:id="@+id/brnSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="15dp"
             android:text="Save User"/>
     </LinearLayout>
 </ScrollView>

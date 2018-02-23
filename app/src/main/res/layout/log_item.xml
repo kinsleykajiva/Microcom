@@ -2,27 +2,29 @@
 <LinearLayout
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context="microcom.zw.com.microcom.activities.Info">
-
+    android:layout_height="match_parent">
     <TextView
-    android:text="Device ID in use:"
-    android:textStyle="bold"
-    android:textSize="16sp"
+    android:id="@+id/date"
+    android:text="date"
     android:textColor="@color/black"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>
+
     <TextView
-        android:text="Ubi est nobilis fluctus?"
-        android:textStyle="bold"
-        android:textSize="14sp"
         android:layout_marginTop="5dp"
+        android:id="@+id/description"
+        android:text="grey"
         android:textColor="@color/grey"
-        android:id="@+id/deviceID"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/det"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/black"/>
+
 </LinearLayout>

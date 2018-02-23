@@ -1,12 +1,14 @@
-package microcom.zw.com.microcom;
+package microcom.zw.com.microcom.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import static microcom.zw.com.microcom.Utils.androidId;
-import static microcom.zw.com.microcom.Utils.getPhoneNumber;
+import microcom.zw.com.microcom.R;
+
+import static microcom.zw.com.microcom.utils.Utils.androidId;
+import static microcom.zw.com.microcom.utils.Utils.getPhoneNumber;
 
 public class Info extends AppCompatActivity {
 private TextView deviceID ;
