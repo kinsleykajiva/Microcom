@@ -1,5 +1,6 @@
 package microcom.zw.com.microcom.activities;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -60,7 +61,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     private TextView tvNFCContent, status, tagStatus;
 
     private static boolean isTaskRunning = false;
-    private boolean canWrite = false;
+    private boolean canWrite = false, isDoneWritting = true;
     private MakeCheks makeCheks;
 
     private String balance = "";
@@ -74,6 +75,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
 
     }
+
     private void showProgressDialog (final boolean isToShow) {
 
         if ( isToShow ) {
@@ -89,10 +91,12 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
 
     }
+
     private void initViews () {
         Toolbar toolbar = findViewById ( R.id.toolbar );
         setSupportActionBar ( toolbar );
-         ImageView justSwipe;   justSwipe = findViewById ( R.id.justSwipe );
+        ImageView justSwipe;
+        justSwipe = findViewById ( R.id.justSwipe );
         status = findViewById ( R.id.status );
         tvNFCContent = findViewById ( R.id.nfc_contents );
         tagStatus = findViewById ( R.id.tagStatus );
@@ -125,8 +129,63 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         tagDetected.addCategory ( Intent.CATEGORY_DEFAULT );
         writeTagFilters = new IntentFilter[]{tagDetected};
     }
+
+    private void writeToCardFailed (String textToWrite) {
+        AlertDialog.Builder builder = new AlertDialog.Builder ( context );
+        builder.setTitle ( "Writing to Card  Error" );
+
+
+        builder.setMessage ( "Please put Card Near to POS to save last transaction,Before Loosing information" );
+
+
+        //Yes Button
+        builder.setPositiveButton ( "Write", (dialog, which) -> {
+            String[] value_split = textToWrite.split ( "\\|" );
+            try {
+                write (
+                        textToWrite,
+
+                        myTag
+                );
+                canWrite = true;
+                if ( canWrite ) {
+                    playSound ( context, 1 );
+                    savePayment ( accountName, cardNumber, androidId ( context ) );
+                    tagStatus.setText ( "Saved To Card" );
+
+                    tvNFCContent.append ( "\n\n\n Newer Balance :" + value_split[ 1 ] );
+                    Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                    isDoneWritting = true;
+                } else {
+                    writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
+                }
+            } catch (IOException | FormatException e) {
+                playSound ( context, 2 );
+                canWrite = false;
+                writeToCardFailed ( textToWrite );
+                Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                e.printStackTrace ();
+            }
+        } );
+        builder.setNegativeButton ( "Cancel", (dialog, which) -> {
+            isDoneWritting = true;
+            Toast.makeText ( getApplicationContext (), "Information Lost", Toast.LENGTH_LONG ).show ();
+            dialog.dismiss ();
+
+        } );
+
+        AlertDialog alertDialog = builder.create ();
+        alertDialog.setCancelable ( false );
+        alertDialog.show ();
+    }
+
     private void buildTagViews (NdefMessage[] msgs) {
-        if ( msgs == null || msgs.length == 0 ) return;
+        if ( msgs == null || msgs.length == 0 ) {
+            return;
+        }
+        if ( ! isDoneWritting ) {
+            return;
+        }
 
         String text = "";
 //
@@ -156,10 +215,10 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                 makeCheks = new MakeCheks ();
                 isTaskRunning = true;
                 if ( isNetworkAvailable ( context ) ) {
-
+                    isDoneWritting = false;
                     makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance + "&deviceid=" + androidId ( context ) );
                 } else {
-                    playSound(context ,2);
+                    playSound ( context, 2 );
                     nifftyDialogs.messageOkError ( "Connection Error", "No Internet Connection" );
                 }
             }
@@ -183,6 +242,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         ndef.writeNdefMessage ( message );
         // Close the connection
         ndef.close ();
+        canWrite = true;
     }
 
     private NdefRecord createRecord (String text) throws UnsupportedEncodingException {
@@ -241,6 +301,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         writeMode = false;
         nfcAdapter.disableForegroundDispatch ( this );
     }
+
     @Override
     public void onBackPressed () {
         DrawerLayout drawer = findViewById ( R.id.drawer_layout );
@@ -251,10 +312,11 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
     }
 
-    private void animateViewBounce(View v){
-        Animation animation = AnimationUtils.loadAnimation ( context , R.anim.bounce );
+    private void animateViewBounce (View v) {
+        Animation animation = AnimationUtils.loadAnimation ( context, R.anim.bounce );
         v.startAnimation ( animation );
     }
+
     /**
      * Read From NFC Tag
      *
@@ -273,11 +335,12 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                     msgs[ i ] = (NdefMessage) rawMsgs[ i ];
                 }
             }
-            Toast.makeText ( this, "Open Next Activity", Toast.LENGTH_SHORT ).show ();
-            buildTagViews(msgs);
+            //Toast.makeText ( this, "Open Next Activity", Toast.LENGTH_SHORT ).show ();
+            buildTagViews ( msgs );
         }
     }
-    private class MakeCheks extends AsyncTask< String, Void, String > {
+
+    private class MakeCheks extends AsyncTask < String, Void, String > {
 
         @Override
         protected String doInBackground (String... strings) {
@@ -291,23 +354,28 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             isTaskRunning = false;
             Log.e ( "xxx", "onPostExecute: " + s );
             if ( s.isEmpty () ) {
-                status.setText ( "Connection Error" );
+                isDoneWritting = true;
+                //status.setText ( "Connection Error" );
+                //status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
                 nifftyDialogs.messageOkError ( "Server Response", "Connection Error" );
-                status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
+
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
-                playSound(context ,2);
+                playSound ( context, 2 );
                 return;
             }
             if ( s.equals ( "none" ) ) {
-                playSound(context ,2);
+                isDoneWritting = true;
+                playSound ( context, 2 );
                 nifftyDialogs.messageOkError ( "Error !", "User doesn't Exist,Register!" );
             }
             if ( s.equals ( "err_update" ) ) {
-                playSound(context ,2);
+                playSound ( context, 2 );
+                isDoneWritting = true;
                 nifftyDialogs.messageOkError ( "Error !", "Transaction Failed !" );
             }
             if ( s.contains ( "broke" ) ) {
-                playSound(context ,2);
+                playSound ( context, 2 );
+                isDoneWritting = true;
                 String[] value_split = s.split ( "\\|" );
                 nifftyDialogs.messageOkError ( "Insufficient Funds !", " Balance $" + value_split[ 1 ] );
                 tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n  Balance :" + value_split[ 1 ] );
@@ -319,7 +387,8 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                 try {
                     if ( myTag == null ) {
                         canWrite = false;
-                        playSound(context ,2);
+                        playSound ( context, 2 );
+                        writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
                         Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
                     } else {
                         write (
@@ -328,14 +397,21 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                                 myTag
                         );
                         canWrite = true;
-                        playSound(context ,1);
-                        savePayment ( accountName, cardNumber, androidId ( context ) );
-                        tagStatus.setText ( "Saved To Card" );
-                        tvNFCContent.append (  "\n\n\n Newer Balance :" + value_split[ 1 ] );
-                        Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                        if ( canWrite ) {
+                            playSound ( context, 1 );
+                            savePayment ( accountName, cardNumber, androidId ( context ) );
+                            tagStatus.setText ( "Saved To Card" );
+                            tvNFCContent.append ( "\n\n\n Newer Balance :" + value_split[ 1 ] );
+                            Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                            isDoneWritting = true;
+                        } else {
+                            writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
+                        }
                     }
                 } catch (IOException | FormatException e) {
-                    playSound(context ,2);
+                    playSound ( context, 2 );
+                    canWrite = false;
+                    writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
                     Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                     e.printStackTrace ();
                 }

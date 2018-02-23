@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Utils {
     public static final String ERROR_DETECTED = "No NFC tag detected!";
-    public static final String WRITE_SUCCESS = "Text written to the NFC tag successfully!";
-    public static final String WRITE_ERROR = "Error during writing, is the NFC tag close enough to your device?";
+    public static final String WRITE_SUCCESS = "Saved to Card Successfully!";
+    public static final String WRITE_ERROR = "Error during writting, make sure the NFC tag is close enough to the device?";
     public static int TIME_OUT = 10, READ_TIME_OUT = 30;
 
     public static String checkDetails (String message) {

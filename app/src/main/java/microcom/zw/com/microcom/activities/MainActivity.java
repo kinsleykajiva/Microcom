@@ -2,6 +2,7 @@ package microcom.zw.com.microcom.activities;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -22,6 +23,8 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,9 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private Tag myTag;
     private ImageView justSwipe;
     private static boolean isTaskRunning = false;
-    private boolean canWrite = false;
+    private boolean canWrite = false, isDoneWritting = true;
     private MakeCheks makeCheks;
     private String balance = "";
+
     private Button brnadd;
 
     private Context context = MainActivity.this;
@@ -73,8 +77,9 @@ public class MainActivity extends AppCompatActivity {
         brnadd.setOnClickListener ( v -> startActivity ( new Intent ( MainActivity.this, AddUser.class ) ) );
 
     }
-    private void animateViewBounce(View v){
-        Animation animation = AnimationUtils.loadAnimation ( context , R.anim.bounce );
+
+    private void animateViewBounce (View v) {
+        Animation animation = AnimationUtils.loadAnimation ( context, R.anim.bounce );
         v.startAnimation ( animation );
     }
 
@@ -141,7 +146,11 @@ public class MainActivity extends AppCompatActivity {
                     msgs[ i ] = (NdefMessage) rawMsgs[ i ];
                 }
             }
+
+
             buildTagViews ( msgs );
+
+
         }
     }
 
@@ -159,23 +168,27 @@ public class MainActivity extends AppCompatActivity {
             isTaskRunning = false;
             Log.e ( "xxx", "onPostExecute: " + s );
             if ( s.isEmpty () ) {
+                isDoneWritting = true;
                 status.setText ( "Connection Error" );
-                playSound(context ,2);
+                playSound ( context, 2 );
                 nifftyDialogs.messageOkError ( "Server Response", "Connection Error" );
                 status.setTextColor ( Color.parseColor ( "#ea4a34" ) ); // green
                 Toast.makeText ( context, "Connection Error", Toast.LENGTH_LONG ).show ();
                 return;
             }
             if ( s.equals ( "none" ) ) {
-                playSound(context ,2);
+                isDoneWritting = true;
+                playSound ( context, 2 );
                 nifftyDialogs.messageOkError ( "Error !", "User doesn't Exist,Register!" );
             }
             if ( s.equals ( "err_update" ) ) {
-                playSound(context ,2);
+                playSound ( context, 2 );
+                isDoneWritting = true;
                 nifftyDialogs.messageOkError ( "Error !", "Transaction Failed !" );
             }
             if ( s.contains ( "broke" ) ) {
-                playSound(context ,2);
+                isDoneWritting = true;
+                playSound ( context, 2 );
                 String[] value_split = s.split ( "\\|" );
                 nifftyDialogs.messageOkError ( "Insufficient Funds !", " Balance $" + value_split[ 1 ] );
                 tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n Newer Balance :" + value_split[ 1 ] );
@@ -188,7 +201,8 @@ public class MainActivity extends AppCompatActivity {
                     if ( myTag == null ) {
                         canWrite = false;
                         Toast.makeText ( context, ERROR_DETECTED, Toast.LENGTH_LONG ).show ();
-                        playSound(context ,2);
+                        playSound ( context, 2 );
+                        writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
                     } else {
                         write (
                                 accountName + "|" + cardNumber + "|" + value_split[ 1 ],
@@ -196,14 +210,21 @@ public class MainActivity extends AppCompatActivity {
                                 myTag
                         );
                         canWrite = true;
-                        playSound(context ,1);
-                        savePayment ( accountName, cardNumber, androidId ( context ) );
-                        tagStatus.setText ( "Saved To Card" );
-                        tvNFCContent.setText ( "Card Name:" + accountName + "\n Number:" + cardNumber + "\n Newer Balance :" + value_split[ 1 ] );
-                        Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                        if ( canWrite ) {
+                            playSound ( context, 1 );
+                            savePayment ( accountName, cardNumber, androidId ( context ) );
+                            tagStatus.setText ( "Saved To Card" );
+                            tvNFCContent.append ( "\n\n\n Newer Balance :" + value_split[ 1 ] );
+                            Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                            isDoneWritting = true;
+                        } else {
+                            writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
+                        }
                     }
                 } catch (IOException | FormatException e) {
-                    playSound(context ,2);
+                    playSound ( context, 2 );
+                    canWrite = false;
+                    writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
                     Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
                     e.printStackTrace ();
                 }
@@ -213,8 +234,62 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void writeToCardFailed (String textToWrite) {
+        AlertDialog.Builder builder = new AlertDialog.Builder ( context );
+        builder.setTitle ( "Writing to Card  Error" );
+
+
+        builder.setMessage ( "Please put Card Near to POS to save last transaction,Before Loosing information" );
+
+
+        //Yes Button
+        builder.setPositiveButton ( "Write", (dialog, which) -> {
+            String[] value_split = textToWrite.split ( "\\|" );
+            try {
+                write (
+                        textToWrite,
+
+                        myTag
+                );
+                canWrite = true;
+                if ( canWrite ) {
+                    playSound ( context, 1 );
+                    savePayment ( accountName, cardNumber, androidId ( context ) );
+                    tagStatus.setText ( "Saved To Card" );
+
+                    tvNFCContent.append ( "\n\n\n Newer Balance :" + value_split[ 1 ] );
+                    Toast.makeText ( context, WRITE_SUCCESS, Toast.LENGTH_LONG ).show ();
+                    isDoneWritting = true;
+                } else {
+                    writeToCardFailed ( accountName + "|" + cardNumber + "|" + value_split[ 1 ] );
+                }
+            } catch (IOException | FormatException e) {
+                playSound ( context, 2 );
+                canWrite = false;
+                writeToCardFailed ( textToWrite );
+                Toast.makeText ( context, WRITE_ERROR, Toast.LENGTH_LONG ).show ();
+                e.printStackTrace ();
+            }
+        } );
+        builder.setNegativeButton ( "Cancel", (dialog, which) -> {
+            isDoneWritting = true;
+            Toast.makeText ( getApplicationContext (), "Information Lost", Toast.LENGTH_LONG ).show ();
+            dialog.dismiss ();
+
+        } );
+
+        AlertDialog alertDialog = builder.create ();
+        alertDialog.setCancelable ( false );
+        alertDialog.show ();
+    }
+
     private void buildTagViews (NdefMessage[] msgs) {
-        if ( msgs == null || msgs.length == 0 ) return;
+        if ( msgs == null || msgs.length == 0 ) {
+            return;
+        }
+        if ( ! isDoneWritting ) {
+            return;
+        }
 
         String text = "";
 //
@@ -243,11 +318,12 @@ public class MainActivity extends AppCompatActivity {
                 showProgressDialog ( true );
                 makeCheks = new MakeCheks ();
                 isTaskRunning = true;
-                if ( isNetworkAvailable ( context ) ) {
 
+                if ( isNetworkAvailable ( context ) ) {
+                    isDoneWritting = false;
                     makeCheks.execute ( "accountName=" + accountName + "&cardNumber=" + cardNumber + "&balance=" + balance + "&deviceid=" + androidId ( context ) );
                 } else {
-                    playSound(context ,2);
+                    playSound ( context, 2 );
                     nifftyDialogs.messageOkError ( "Connection Error", "No Internet Connection" );
                 }
             }
@@ -271,6 +347,7 @@ public class MainActivity extends AppCompatActivity {
         ndef.writeNdefMessage ( message );
         // Close the connection
         ndef.close ();
+        canWrite = true;
     }
 
     private NdefRecord createRecord (String text) throws UnsupportedEncodingException {
