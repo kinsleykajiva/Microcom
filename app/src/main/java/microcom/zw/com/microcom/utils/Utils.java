@@ -32,6 +32,7 @@ public class Utils {
     public static final String WRITE_SUCCESS = "Saved to Card Successfully!";
     public static final String WRITE_ERROR = "Error during writting, make sure the NFC tag is close enough to the device?";
     public static int TIME_OUT = 10, READ_TIME_OUT = 30;
+    public static final String DIALOG_PROCESSING = "Processing.Keep Card very Close !";
 
     public static String checkDetails (String message) {
         String Rs = "";

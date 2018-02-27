@@ -383,12 +383,14 @@ public class MainActivity extends AppCompatActivity {
     public void onPause () {
         super.onPause ();
         WriteModeOff ();
+        isDoneWritting = true;
     }
 
     @Override
     public void onResume () {
         super.onResume ();
         WriteModeOn ();
+        isDoneWritting = true;
     }
 
     /**

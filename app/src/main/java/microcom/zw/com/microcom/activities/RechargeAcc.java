@@ -45,6 +45,7 @@ private EditText amountToAdd;
     private boolean writeMode ,canWrite = false;
     private  String accountName ="" ,cardNumber  ="",balance ="" ,Alltxt = "";
     private Tag myTag;
+    private boolean isCardDetected  = false;
 private Button btnUpdate;
     private NifftyDialogs nifftyDialogs;
     private Context context = RechargeAcc.this;
@@ -66,6 +67,10 @@ private Button btnUpdate;
             }
             if(amount.isEmpty ()){
                 Toast.makeText ( context, "Amount Cant be Empty", Toast.LENGTH_SHORT ).show ();
+                return;
+            }
+            if(Integer.parseInt ( amount ) > 50 ){
+                Toast.makeText ( context, "Amount Cant exceed 50", Toast.LENGTH_SHORT ).show ();
                 return;
             }
             showProgressDialog ( true );
@@ -101,7 +106,7 @@ private Button btnUpdate;
         if (msgs == null || msgs.length == 0) return;
 
         String text = "";
-//
+        isCardDetected = true;
         byte[] payload = msgs[0].getRecords()[0].getPayload();
         String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16"; // Get the Text Encoding
         int languageCodeLength = payload[0] & 0063; // Get the Language Code, e.g. "en"
@@ -119,6 +124,10 @@ private Button btnUpdate;
         if ( value_split.length != 3 ) {
             nifftyDialogs.messageOkError ( "Error" , "Error .Card Compromised" );
             Toast.makeText ( context, "Error .Card Compromised", Toast.LENGTH_SHORT ).show ();
+            return;
+        }
+        if(!isCardDetected) {
+            nifftyDialogs.messageOkError ( "Error" , "No Card Detected" );
             return;
         }
 
@@ -262,7 +271,7 @@ private Button btnUpdate;
 
         if ( isToShow ) {
             if ( ! progressDialog.isShowing () ) {
-                progressDialog.setMessage ( "Processing ...Please wait." );
+                progressDialog.setMessage ( "Processing.Keep Card very Close !" );
                 progressDialog.setCancelable ( false );
                 progressDialog.show ();
             }

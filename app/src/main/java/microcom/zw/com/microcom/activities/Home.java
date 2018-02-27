@@ -39,6 +39,7 @@ import microcom.zw.com.microcom.R;
 
 import static com.ihongqiqu.util.NetUtil.isNetworkAvailable;
 import static microcom.zw.com.microcom.DBAccess.CRUD.savePayment;
+import static microcom.zw.com.microcom.utils.Utils.DIALOG_PROCESSING;
 import static microcom.zw.com.microcom.utils.Utils.ERROR_DETECTED;
 import static microcom.zw.com.microcom.utils.Utils.WRITE_ERROR;
 import static microcom.zw.com.microcom.utils.Utils.WRITE_SUCCESS;
@@ -80,7 +81,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
         if ( isToShow ) {
             if ( ! progressDialog.isShowing () ) {
-                progressDialog.setMessage ( "Processing ...Please wait." );
+                progressDialog.setMessage ( DIALOG_PROCESSING );
                 progressDialog.setCancelable ( false );
                 progressDialog.show ();
             }

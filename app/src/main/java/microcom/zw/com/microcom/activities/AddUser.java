@@ -72,6 +72,10 @@ public class AddUser extends AppCompatActivity {
                 Toast.makeText ( AddUser.this, "Balance cant be Empty", Toast.LENGTH_LONG ).show ();
                 return;
             }
+            if(Integer.parseInt ( Balance_ ) > 50 ){
+                Toast.makeText ( context, "Amount Cant exceed 50", Toast.LENGTH_SHORT ).show ();
+                return;
+            }
             showProgressDialog ( true );
             try {
                 if ( myTag == null ) {
@@ -215,7 +219,7 @@ public class AddUser extends AppCompatActivity {
 
         if ( isToShow ) {
             if ( ! progressDialog.isShowing () ) {
-                progressDialog.setMessage ( "Processing ...Please wait." );
+                progressDialog.setMessage ( "Processing.Keep Card very Close !" );
                 progressDialog.setCancelable ( false );
                 progressDialog.show ();
             }
